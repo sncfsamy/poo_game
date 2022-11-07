@@ -76,9 +76,12 @@ function animate() {
 function spawnEnemies() {
   ennemiesInterval = setInterval(() => {
     const radius = Math.random() * (30 - 4) + 4;
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
+    let r = Math.floor(Math.random() * 256);
+    let g = Math.floor(Math.random() * 256);
+    let b = Math.floor(Math.random() * 256);
+    r = r > 10 ? r : 10;
+    g = g > 10 ? g : 10;
+    b = b > 10 ? b : 10;
     const color = `rgb(${r}, ${g}, ${b})`;
     const randomValue = Math.random();
     let x ,y;
