@@ -1,4 +1,4 @@
-let canvas, ctx, player, modal, score = 0, projectiles = [], enemies = [], particles = [], animationId, scoreH, startButton, shoots, hits;
+let canvas, ctx, player, modal, score = 0, projectiles = [], enemies = [], particles = [], animationId, scoreH, startButton, shoots, hits, nom_joueur = "Player", scoresDiv, ennemiesInterval;
 
 function animate() {
   animationId = requestAnimationFrame(animate);
@@ -74,34 +74,34 @@ function animate() {
 }
 
 function spawnEnemies() {
-    setInterval(() => {
-        const radius = Math.random() * (30 - 4) + 4;
-        const r = Math.floor(Math.random() * 256);
-        const g = Math.floor(Math.random() * 256);
-        const b = Math.floor(Math.random() * 256);
-        const color = `rgb(${r}, ${g}, ${b})`;
-        const randomValue = Math.random();
-        let x ,y;
-        if (randomValue < 0.25) {
-            x = 0 - radius;
-            y = Math.random() * canvas.height;
-        } else if (randomValue >= 0.25 && randomValue < 0.5) {
-            x = canvas.width + radius;
-            y = Math.random() * canvas.height;
-        } else if (randomValue >= 0.5 && randomValue < 0.75) {
-            x = Math.random() * canvas.width;
-            y = 0 - radius;
-        } else if (randomValue >= 0.75) {
-            x = Math.random() * canvas.width;
-            y = canvas.height + radius;
-        }
-        const angle = Math.atan2(player.y - y, player.x - x);
-        const velocity = {
-            x: Math.cos(angle),
-            y: Math.sin(angle),
-        };
-        enemies.push(new Enemy(x, y, radius, color, velocity));
-    }, 1000);
+  ennemiesInterval = setInterval(() => {
+    const radius = Math.random() * (30 - 4) + 4;
+    const r = Math.floor(Math.random() * 256);
+    const g = Math.floor(Math.random() * 256);
+    const b = Math.floor(Math.random() * 256);
+    const color = `rgb(${r}, ${g}, ${b})`;
+    const randomValue = Math.random();
+    let x ,y;
+    if (randomValue < 0.25) {
+        x = 0 - radius;
+        y = Math.random() * canvas.height;
+    } else if (randomValue >= 0.25 && randomValue < 0.5) {
+        x = canvas.width + radius;
+        y = Math.random() * canvas.height;
+    } else if (randomValue >= 0.5 && randomValue < 0.75) {
+        x = Math.random() * canvas.width;
+        y = 0 - radius;
+    } else if (randomValue >= 0.75) {
+        x = Math.random() * canvas.width;
+        y = canvas.height + radius;
+    }
+    const angle = Math.atan2(player.y - y, player.x - x);
+    const velocity = {
+        x: Math.cos(angle),
+        y: Math.sin(angle),
+    };
+    enemies.push(new Enemy(x, y, radius, color, velocity));
+  }, 1000);
 }
 
 class Entity {
@@ -180,6 +180,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
     player.draw();
     modal = document.querySelector("dialog");
     scoreH = document.querySelector("h2");
+    scoresDiv = document.getElementById("scores");
     startButton = document.getElementById("start");
     startButton.addEventListener("click", function() {
         modal.close();
@@ -198,22 +199,48 @@ window.addEventListener("DOMContentLoaded", ()=>{
 });
 
 function finDuJeu(score) {
-    window.removeEventListener("click", jeuClick);
-    document.getElementById("score").innerHTML = "<br />Score: <b>" + score + "</b><br />Shoots: <b>" + shoots + "</b><br />Hits: <b>" + hits + "</B><br />Précision: <b>" + (Math.round((hits/shoots + Number.EPSILON) * 100)) + "%</b><br /><br /><br />";
-    modal.show();
-    projectiles = [];
-    enemies = [];
-    particles = [];
-    setTimeout(()=>{ 
-        startButton.disabled = false; 
-    }, 1000);
+  clearInterval(ennemiesInterval);
+  fetch('https://www.gloriousrp.fr/poogame-billou/scores.php', {
+    method: 'POST',
+    headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ "pushscores": "yes", "name": nom_joueur, "score": score })
+  })
+  .then(async response => {
+    const request = new Request("https://www.gloriousrp.fr/poogame-billou/scores.php");
+    const reply = await fetch(request);
+    const scores = await reply.json();
+    scoresDiv.innerHTML = "<br /><br />High Scores:<br />";
+    scores.forEach((element, i) => {
+      for (let el in element) {
+        scoresDiv.innerHTML += "<span class=\"boldy\">" + (i+1) + " - " + el + " - <b>" + element[el] + "</b></span><br />";
+      }
+    });
+  });
+    
+  window.removeEventListener("click", jeuClick);
+  document.getElementById("score").innerHTML = "<br />Score: <b>" + score + "</b><br />Shoots: <b>" + shoots + "</b><br />Hits: <b>" + hits + "</B><br />Précision: <b>" + (Math.round((hits/shoots + Number.EPSILON) * 100)) + "%</b><br /><br /><br />";
+  modal.show();
+  projectiles = [];
+  enemies = [];
+  particles = [];
+  setTimeout(()=>{ 
+      startButton.disabled = false; 
+  }, 1000);
 }
 
 function start() {
     score = 0;
     hits = 0;
     shoots = 0;
+    scoresDiv.innerHTML = "";
+    document.getElementById("score").innerHTML = "";
     scoreH.innerText = "Score : 0";
+    while (nom_joueur == "Player" || nom_joueur == "" || nom_joueur == undefined || nom_joueur == null) {
+      nom_joueur = prompt("Entrez votre nom");
+    }
     spawnEnemies();
     animate();
     setTimeout(() => {

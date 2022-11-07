@@ -64,6 +64,15 @@ b {
     color:rgb(0, 165, 49);
 }
 
-#score {
+#score, #scores {
     color: white;
+}
+
+#scores {
+    color: #888888;
+    text-align: left;
+}
+
+span.boldy {
+    font-weight: 800;
 }
