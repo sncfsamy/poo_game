@@ -170,7 +170,7 @@ class Particle extends Enemy {
       this.alpha -= 0.01;
     }
   }
-window.addEventListener("DOMContentLoaded", ()=>{
+window.addEventListener("DOMContentLoaded", async ()=>{
     canvas = document.getElementById("game-container");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -185,6 +185,15 @@ window.addEventListener("DOMContentLoaded", ()=>{
     scoreH = document.querySelector("h2");
     scoresDiv = document.getElementById("scores");
     startButton = document.getElementById("start");
+    const request = new Request("https://www.gloriousrp.fr/poogame-billou/scores.php");
+    const reply = await fetch(request);
+    const scores = await reply.json();
+    scoresDiv.innerHTML = "<br /><br />High Scores:<br />";
+    scores.forEach((element, i) => {
+      for (let el in element) {
+        scoresDiv.innerHTML += "<span class=\"boldy\">" + (i+1) + " - " + el + " - <b>" + element[el] + "</b></span><br />";
+      }
+    });
     startButton.addEventListener("click", function() {
         modal.close();
         startButton.disabled = true;
