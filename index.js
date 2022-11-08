@@ -191,7 +191,7 @@ window.addEventListener("DOMContentLoaded", async ()=>{
     scoresDiv.innerHTML = "<br /><br />High Scores:<br />";
     scores.forEach((element, i) => {
       for (let el in element) {
-        scoresDiv.innerHTML += "<span class=\"boldy\">" + (i+1) + " - " + el + " - <b>" + element[el] + "</b></span><br />";
+        scoresDiv.innerHTML += "<span class=\"boldy\">" + (i+1) + " - " + el[0].toUpperCase()+el.substring(1) + " - <b>" + element[el] + "</b></span><br />";
       }
     });
     startButton.addEventListener("click", function() {
@@ -227,7 +227,7 @@ function finDuJeu(score) {
     scoresDiv.innerHTML = "<br /><br />High Scores:<br />";
     scores.forEach((element, i) => {
       for (let el in element) {
-        scoresDiv.innerHTML += "<span class=\"boldy\">" + (i+1) + " - " + el + " - <b>" + element[el] + "</b></span><br />";
+        scoresDiv.innerHTML += "<span class=\"boldy\">" + (i+1) + " - " + el[0].toUpperCase()+el.substring(1) + " - <b>" + element[el] + "</b></span><br />";
       }
     });
   });
